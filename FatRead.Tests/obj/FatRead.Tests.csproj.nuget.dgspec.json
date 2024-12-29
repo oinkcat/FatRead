@@ -1,44 +1,64 @@
 {
   "format": 1,
   "restore": {
-    "/home/igor/proj/fat_read/FatRead.Tests/FatRead.Tests.csproj": {}
+    "D:\\VS_Projects\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj": {}
   },
   "projects": {
-    "/home/igor/proj/fat_read/FatRead.Tests/FatRead.Tests.csproj": {
+    "D:\\VS_Projects\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/igor/proj/fat_read/FatRead.Tests/FatRead.Tests.csproj",
+        "projectUniqueName": "D:\\VS_Projects\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj",
         "projectName": "FatRead.Tests",
-        "projectPath": "/home/igor/proj/fat_read/FatRead.Tests/FatRead.Tests.csproj",
-        "packagesPath": "/home/igor/.nuget/packages/",
-        "outputPath": "/home/igor/proj/fat_read/FatRead.Tests/obj/",
+        "projectPath": "D:\\VS_Projects\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj",
+        "packagesPath": "C:\\Users\\softc\\.nuget\\packages\\",
+        "outputPath": "D:\\VS_Projects\\repos\\FatRead\\FatRead.Tests\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/home/igor/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\softc\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "netcoreapp3.1"
+          "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "D:\\VS_Projects\\Work\\Communicator\\Packages": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "netcoreapp3.1": {
-            "projectReferences": {}
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj": {
+                "projectPath": "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
+        },
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
-        "netcoreapp3.1": {
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
-              "version": "[16.5.0, )"
+              "version": "[16.9.4, )"
             },
             "coverlet.collector": {
               "target": "Package",
@@ -59,7 +79,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -68,7 +89,74 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/3.1.415/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj",
+        "projectName": "FatRead",
+        "projectPath": "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj",
+        "packagesPath": "C:\\Users\\softc\\.nuget\\packages\\",
+        "outputPath": "D:\\VS_Projects\\repos\\FatRead\\FatRead\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\softc\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "D:\\VS_Projects\\Work\\Communicator\\Packages": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }

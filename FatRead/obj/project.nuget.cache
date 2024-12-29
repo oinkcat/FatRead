@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "MW4Y7LdPCOC3tY//R8rpOWwueg/qXxOt7CWjoE/dWTPyHVHz/PcLQVYqREFppJSyRMr5oKmt3xGNsip5s/FYJw==",
+  "dgSpecHash": "QK+FgbfOPSg=",
   "success": true,
-  "projectFilePath": "/home/igor/proj/fat_read/FatRead/FatRead.csproj",
-  "expectedPackageFiles": [
-    "/home/igor/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
-    "/home/igor/.nuget/packages/netstandard.library/2.0.3/netstandard.library.2.0.3.nupkg.sha512"
-  ],
+  "projectFilePath": "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }
