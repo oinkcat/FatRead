@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using FatRead;
 
 namespace FatRead.Tests
 {
@@ -11,13 +10,16 @@ namespace FatRead.Tests
     {
         private const string TestImageFilePath = "D:/Temp/fat16.img";
 
+        /// <summary>
+        /// Прочитать информацию загрузочного сектора FAT
+        /// </summary>
         [Fact]
-        public void TestReadImageInfo()
+        public void TestReadBootSectorInfo()
         {
             using var fatReader = new FatImageReader(TestImageFilePath);
-            fatReader.Read();
+            var commonHeader = fatReader.ReadCommonInfo();
 
-            Assert.True(true);
+            Assert.True(commonHeader.IsValid);
         }
     }
 }

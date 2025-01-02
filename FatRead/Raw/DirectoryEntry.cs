@@ -7,9 +7,11 @@ namespace FatRead.Raw
     /// <summary>
     /// Информация об элементе каталога
     /// </summary>
-    public class FileEntry
+    public class DirectoryEntry
     {
         public const int ShortNameLength = 11;
+
+        public const int EmptyEntryName = 0xE5;
 
         public string ShortName { get; set; }
 

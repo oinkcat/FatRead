@@ -7,7 +7,7 @@ namespace FatRead.Raw
     /// <summary>
     /// Информация о FAT32
     /// </summary>
-    public class Fat32Info
+    public class Fat32Info : FatInfo
     {
         public const int ReservedBytesCount = 12;
 
@@ -24,7 +24,5 @@ namespace FatRead.Raw
         public UInt16 BackupSector { get; set; }
 
         public byte[] Reserved { get; set; }
-
-        public Fat16Info Inherited { get; set; }
     }
 }

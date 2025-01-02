@@ -9,6 +9,13 @@ namespace FatRead.Raw
     /// </summary>
     public class FatCommonHeader
     {
+        /// <summary>
+        /// Представляет действительный загрузочный сектор
+        /// </summary>
+        public bool IsValid => BitConverter.ToString(JmpCommand).Equals(JmpCodeHex);
+
+        public const string JmpCodeHex = "EB-3C-90";
+
         public const int JmpCommandLength = 3;
 
         public const int OemNameLength = 8;

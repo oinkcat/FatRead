@@ -5,9 +5,9 @@ using System.Text;
 namespace FatRead.Raw
 {
     /// <summary>
-    /// Информация о FAT16
+    /// Информация о FAT16 и FAT32
     /// </summary>
-    public class Fat16Info
+    public class FatInfo
     {
         public const int LabelLength = 11;
 

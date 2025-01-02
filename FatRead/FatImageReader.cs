@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text;
+using FatRead.Raw;
 
 namespace FatRead
 {
@@ -11,19 +12,6 @@ namespace FatRead
     /// </summary>
     public class FatImageReader : IDisposable
     {
-        private const int DefaultSectorSize = 512;
-
-        private const string JmpCodeHex = "EB-3C-90";
-        private const int JmpCodeLength = 3;
-
-        private const int OemNameLength = 8;
-        private const int VolumeLabelLength = 11;
-
-        private const int NamePartLength = 8;
-        private const int ExtensionLength = 3;
-
-        private const int EmptyEntryName = 0xE5;
-
         private readonly string imgFilePath;
 
         private BinaryReader reader;
@@ -37,35 +25,98 @@ namespace FatRead
         public FatImageReader(string path)
         {
             imgFilePath = path;
+            reader = new BinaryReader(File.OpenRead(imgFilePath));
         }
 
         /// <summary>
         /// Прочитать информацию об образе ФС
         /// </summary>
-        public void Read()
+        /// <returns>Заголовок загрузочного сектора</returns>
+        public FatCommonHeader ReadCommonInfo() => new FatCommonHeader
         {
-            reader = new BinaryReader(File.OpenRead(imgFilePath));
+            JmpCommand = reader.ReadBytes(FatCommonHeader.JmpCommandLength),
+            OemName = Encoding.ASCII.GetString(reader.ReadBytes(FatCommonHeader.OemNameLength)),
+            BytesPerSector = reader.ReadUInt16(),
+            SectorsPerCluster = reader.ReadByte(),
+            ReservedCount = reader.ReadUInt16(),
+            NumberOfFats = reader.ReadByte(),
+            NumberOfRootEntries = reader.ReadUInt16(),
+            TotalSectors16 = reader.ReadUInt16(),
+            MediaType = reader.ReadByte(),
+            FatSize16 = reader.ReadUInt16(),
+            SectorsPerTrack = reader.ReadUInt16(),
+            NumberOfHeads = reader.ReadUInt16(),
+            NumberOfHiddenSectors = reader.ReadUInt32(),
+            TotalSectors32 = reader.ReadUInt32()
+        };
 
-            ReadBasicInfo();
+        /// <summary>
+        /// Прочитать информацию о ФС FAT (16)
+        /// </summary>
+        /// <returns>Общая информация о FAT</returns>
+        public FatInfo ReadFatInfo()
+        {
+            var fatInfo = new FatInfo();
+            FillFatInfo(fatInfo);
+
+            return fatInfo;
         }
 
-        private void ReadBasicInfo()
+        private void FillFatInfo(FatInfo info)
         {
-            var headerBytes = new Byte[DefaultSectorSize];
-            _ = reader.Read(headerBytes);
+            info.DriveNumber = reader.ReadByte();
+            info.Reserved1 = reader.ReadByte();
+            info.BootSignature = reader.ReadByte();
+            info.VolumeId = reader.ReadUInt32();
+            info.VolumeLabel = Encoding.ASCII.GetString(reader.ReadBytes(FatInfo.LabelLength));
+            info.FsType = Encoding.ASCII.GetString(reader.ReadBytes(FatInfo.FsTypeLength));
+        }
 
-            string jmpCodeValue = BitConverter.ToString(headerBytes, 0, JmpCodeLength);
-
-            if(jmpCodeValue != JmpCodeHex)
+        /// <summary>
+        /// Прочитать информацию о ФС FAT32
+        /// </summary>
+        /// <returns>Информаия о FAT32</returns>
+        public Fat32Info ReadFat32Info()
+        {
+            var fat32Info = new Fat32Info
             {
-                throw new Exception("Invalid header");
-            }
+                FatSize32 = reader.ReadUInt32(),
+                ExtendedFlags = reader.ReadUInt16(),
+                FsVersion = reader.ReadUInt16(),
+                RootCluster = reader.ReadUInt32(),
+                FsInfoSector = reader.ReadUInt16(),
+                BackupSector = reader.ReadUInt16(),
+                Reserved = reader.ReadBytes(Fat32Info.ReservedBytesCount)
+            };
 
-            int offset = JmpCodeLength;
-            string oemName = Encoding.ASCII.GetString(headerBytes, offset, OemNameLength);
-            Console.WriteLine(oemName);
+            FillFatInfo(fat32Info);
+
+            return fat32Info;
         }
 
+        /// <summary>
+        /// Прочитать информацию об элементе каталога
+        /// </summary>
+        /// <returns>Информация элемента каталога</returns>
+        public DirectoryEntry ReadDirectoryEntry() => new DirectoryEntry
+        {
+            ShortName = Encoding.ASCII.GetString(reader.ReadBytes(DirectoryEntry.ShortNameLength)),
+            Attributes = reader.ReadByte(),
+            Reserved = reader.ReadByte(),
+            CreateTimeMs = reader.ReadByte(),
+            CreateTime = reader.ReadUInt16(),
+            CreateDate = reader.ReadUInt16(),
+            AccessDate = reader.ReadUInt16(),
+            ClusterHigh = reader.ReadUInt16(),
+            WriteTime = reader.ReadUInt16(),
+            WriteDate = reader.ReadUInt16(),
+            ClusterLow = reader.ReadUInt16(),
+            Size = reader.ReadUInt32()
+        };
+
+        /// <summary>
+        /// Закрыть файл образа
+        /// </summary>
         public void Close()
         {
             if(reader != null)
@@ -87,6 +138,7 @@ namespace FatRead
             }
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(disposing: true);
