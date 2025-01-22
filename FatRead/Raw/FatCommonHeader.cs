@@ -14,6 +14,11 @@ namespace FatRead.Raw
         /// </summary>
         public bool IsValid => BitConverter.ToString(JmpCommand).Equals(JmpCodeHex);
 
+        /// <summary>
+        /// Является ли тип ФС FAT32
+        /// </summary>
+        public bool IsFat32 => FatSize16 == 0;
+
         public const string JmpCodeHex = "EB-3C-90";
 
         public const int JmpCommandLength = 3;

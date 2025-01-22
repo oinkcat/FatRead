@@ -9,9 +9,16 @@ namespace FatRead.Raw
     /// </summary>
     public class FatInfo
     {
+        private const string Fat12FsType = "FAT12";
+
         public const int LabelLength = 11;
 
         public const int FsTypeLength = 8;
+
+        /// <summary>
+        /// Возможно ли чтение ФС
+        /// </summary>
+        public bool IsSupported => !FsType.StartsWith(Fat12FsType);
 
         public byte DriveNumber { get; set; }
 

@@ -14,13 +14,24 @@ namespace FatRead
     {
         private readonly string imgFilePath;
 
-        private BinaryReader reader;
+        private readonly BinaryReader reader;
+
+        private FatContext context;
+
         private bool disposedValue;
 
         /// <summary>
-        /// Структуры ФС разобраны
+        /// Контекст ФС
         /// </summary>
-        public bool IsParsed { get; private set; }
+        internal FatContext Context 
+        { 
+            get => context; 
+            set
+            {
+                context = value;
+                CheckMediaTypeOfFat();
+            }
+        }
 
         public FatImageReader(string path)
         {
@@ -111,18 +122,50 @@ namespace FatRead
             WriteTime = reader.ReadUInt16(),
             WriteDate = reader.ReadUInt16(),
             ClusterLow = reader.ReadUInt16(),
-            Size = reader.ReadUInt32()
+            ContentSize = reader.ReadUInt32()
         };
+
+        // Проверить тип носителя таблицы FAT
+        private void CheckMediaTypeOfFat()
+        {
+            reader.BaseStream.Seek(context.FatTableOffset, SeekOrigin.Begin);
+            byte fatMediaType = reader.ReadByte();
+
+            if(fatMediaType != context.MediaType)
+            {
+                throw new Exception("Invalid media type in FAT");
+            }
+        }
+
+        /// <summary>
+        /// Установить смещение образа из номера кластера и относительного смещения
+        /// </summary>
+        /// <param name="cluster">Номер кластера</param>
+        /// <param name="offset">Смещение относительно начала кластера</param>
+        public void SeekCluster(UInt32 cluster, UInt16 offset)
+        {
+            UInt32 clusterOffset;
+
+            if(cluster > 1)
+            {
+                UInt16 rootDirSize = (UInt16)(context.MaxDirectoryEntries * DirectoryEntry.Size);
+                UInt32 dataOffset = context.BytesPerCluster * (cluster * 2);
+                clusterOffset = context.RootDirectoryOffset + rootDirSize * dataOffset;
+            }
+            else
+            {
+                clusterOffset = context.RootDirectoryOffset;
+            }
+
+            reader.BaseStream.Position = clusterOffset + offset;
+        }
 
         /// <summary>
         /// Закрыть файл образа
         /// </summary>
         public void Close()
         {
-            if(reader != null)
-            {
-                reader.Close();
-            }
+            reader?.Close();
         }
 
         protected virtual void Dispose(bool disposing)

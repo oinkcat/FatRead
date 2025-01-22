@@ -9,6 +9,11 @@ namespace FatRead.Raw
     /// </summary>
     public class DirectoryEntry
     {
+        /// <summary>
+        /// Размер элемента в байтах
+        /// </summary>
+        public const UInt32 Size = 32;
+
         public const int ShortNameLength = 11;
 
         public const int EmptyEntryName = 0xE5;
@@ -35,6 +40,6 @@ namespace FatRead.Raw
 
         public UInt16 ClusterLow { get; set; }
 
-        public UInt32 Size { get; set; }
+        public UInt32 ContentSize { get; set; }
     }
 }
