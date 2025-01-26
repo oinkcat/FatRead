@@ -111,8 +111,10 @@ namespace FatRead
         /// <returns>Информация элемента каталога</returns>
         public DirectoryEntry ReadDirectoryEntry() => new DirectoryEntry
         {
-            ShortName = Encoding.ASCII.GetString(reader.ReadBytes(DirectoryEntry.ShortNameLength)),
-            Attributes = reader.ReadByte(),
+            ShortName = Encoding.ASCII
+                .GetString(reader.ReadBytes(DirectoryEntry.ShortNameLength))
+                .TrimEnd('\x00', '\x20'),
+            Attributes = (EntryAttribute)reader.ReadByte(),
             Reserved = reader.ReadByte(),
             CreateTimeMs = reader.ReadByte(),
             CreateTime = reader.ReadUInt16(),
@@ -142,15 +144,15 @@ namespace FatRead
         /// </summary>
         /// <param name="cluster">Номер кластера</param>
         /// <param name="offset">Смещение относительно начала кластера</param>
-        public void SeekCluster(UInt32 cluster, UInt16 offset)
+        public void SeekCluster(UInt32 cluster, UInt16 offset = 0)
         {
             UInt32 clusterOffset;
 
             if(cluster > 1)
             {
                 UInt16 rootDirSize = (UInt16)(context.MaxDirectoryEntries * DirectoryEntry.Size);
-                UInt32 dataOffset = context.BytesPerCluster * (cluster * 2);
-                clusterOffset = context.RootDirectoryOffset + rootDirSize * dataOffset;
+                UInt32 dataOffset = context.BytesPerCluster * (cluster - 2);
+                clusterOffset = context.RootDirectoryOffset + rootDirSize + dataOffset;
             }
             else
             {
@@ -158,6 +160,38 @@ namespace FatRead
             }
 
             reader.BaseStream.Position = clusterOffset + offset;
+        }
+
+        /// <summary>
+        /// Произвести просмотр указанной записи в таблице FAT
+        /// </summary>
+        /// <param name="entry">Номер записи</param>
+        /// <returns>Значание заданной записи в таблице FAT</returns>
+        public UInt32 LookupFatTable(UInt32 entry)
+        {
+            ThrowIfNoContext();
+
+            long origOffset = reader.BaseStream.Position;
+
+            int entrySize = Context.IsFat32 ? sizeof(UInt32) : sizeof(UInt16);
+            long newOffset = Context.FatTableOffset + entry * entrySize;
+            reader.BaseStream.Position = newOffset;
+
+            UInt32 readValue = Context.IsFat32 
+                ? reader.ReadUInt32() & 0x0fffffff 
+                : reader.ReadUInt16();
+
+            reader.BaseStream.Position = origOffset;
+
+            return readValue;
+        }
+
+        private void ThrowIfNoContext()
+        {
+            if(Context == null)
+            {
+                throw new Exception("FAT Context not given");
+            }
         }
 
         /// <summary>
