@@ -169,6 +169,23 @@ namespace FatRead
             }
         }
 
+        /// <summary>
+        /// Открыть запись файла ФС FAT для чтения данных
+        /// </summary>
+        /// <param name="entry">Запись файла</param>
+        /// <returns>Поток, пригодный для чтения данных</returns>
+        public FatFileStream OpenFileForRead(DirectoryEntry entry)
+        {
+            return new FatFileStream(entry, reader);
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -180,13 +197,6 @@ namespace FatRead
 
                 disposedValue = true;
             }
-        }
-
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }

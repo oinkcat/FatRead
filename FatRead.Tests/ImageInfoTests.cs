@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using FatRead.Raw;
 using Xunit;
 
@@ -13,6 +13,8 @@ namespace FatRead.Tests
     public class ImageInfoTests
     {
         private const string TestImageFilePath = "D:/Temp/fat16.img";
+
+        private const string TestOutFileName = "D:/Temp/fat_read.txt";
 
         /// <summary>
         /// Тест чтения загрузочного сектора FAT
@@ -108,6 +110,33 @@ namespace FatRead.Tests
             var nonExistingEntry = fsImage.GetEntryByPath(NonExistingEntryPath);
 
             Assert.Null(nonExistingEntry);
+        }
+
+        /// <summary>
+        /// Тест чтения файла из образа
+        /// </summary>
+        [Fact]
+        public void TestReadFileFromImage()
+        {
+            const string TestFilePath = "\\include\\ip.h";
+
+            using var fsImage = new FatImage(TestImageFilePath);
+            fsImage.ParseFat();
+
+            var foundFile = fsImage.GetEntryByPath(TestFilePath);
+            using var entryStream = fsImage.OpenFileForRead(foundFile);
+
+            Assert.True(entryStream.CanRead);
+
+            var entryBytes = new byte[foundFile.ContentSize];
+            int bytesRead = entryStream.Read(entryBytes, 0, entryBytes.Length);
+
+            Assert.Equal((int)foundFile.ContentSize, bytesRead);
+
+            // Сохранить прочитанные данные
+            using var testOutStream = File.Create(TestOutFileName);
+            testOutStream.Write(entryBytes);
+            testOutStream.Flush();
         }
     }
 }

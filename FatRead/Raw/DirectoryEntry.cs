@@ -82,6 +82,11 @@ namespace FatRead.Raw
         public bool IsDirectory => Attributes.HasFlag(EntryAttribute.Directory);
 
         /// <summary>
+        /// Номер кластера
+        /// </summary>
+        public UInt32 Cluster => (UInt32)ClusterHigh << 16 | ClusterLow;
+
+        /// <summary>
         /// Отображаемое короткое имя
         /// </summary>
         public string DisplayShortName

@@ -163,6 +163,18 @@ namespace FatRead
         }
 
         /// <summary>
+        /// Прочитать данные с текущей позиции
+        /// </summary>
+        /// <param name="buffer">Буфер, куда считывать данные</param>
+        /// <param name="offset">Смещение начала буфера</param>
+        /// <param name="count">Число байт для чтения</param>
+        /// <returns>Число прочитанных байт</returns>
+        internal int RawRead(byte[] buffer, int offset, int count)
+        {
+            return reader.BaseStream.Read(buffer, offset, count);
+        }
+
+        /// <summary>
         /// Произвести просмотр указанной записи в таблице FAT
         /// </summary>
         /// <param name="entry">Номер записи</param>
