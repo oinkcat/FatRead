@@ -9,17 +9,9 @@ namespace FatRead.Raw
     /// </summary>
     public class FatCommonHeader
     {
-        /// <summary>
-        /// Представляет действительный загрузочный сектор
-        /// </summary>
-        public bool IsValid => BitConverter.ToString(JmpCommand).Equals(JmpCodeHex);
+        private const byte HexCodeJmp = 0xeb;
 
-        /// <summary>
-        /// Является ли тип ФС FAT32
-        /// </summary>
-        public bool IsFat32 => FatSize16 == 0;
-
-        public const string JmpCodeHex = "EB-3C-90";
+        private const byte HexCodeNop = 0x90;
 
         public const int JmpCommandLength = 3;
 
@@ -52,5 +44,15 @@ namespace FatRead.Raw
         public UInt32 NumberOfHiddenSectors { get; set; }
 
         public UInt32 TotalSectors32 { get; set; }
+
+        /// <summary>
+        /// Представляет действительный загрузочный сектор
+        /// </summary>
+        public bool IsValid => (JmpCommand[0] == HexCodeJmp) && (JmpCommand[2] == HexCodeNop);
+
+        /// <summary>
+        /// Является ли тип ФС FAT32
+        /// </summary>
+        public bool IsFat32 => FatSize16 == 0;
     }
 }

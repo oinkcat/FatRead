@@ -431,3 +431,5 @@ $RECYCLE.BIN/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+/FatRead.Tests/TestData/fat16.img
+/FatRead.Tests/TestData/fat32.img
