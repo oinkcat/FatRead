@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using FatRead.Raw;
 
@@ -43,6 +41,19 @@ namespace FatRead
         /// Структуры ФС разобраны
         /// </summary>
         public bool IsParsed { get; private set; }
+
+        /// <summary>
+        /// Открыть файл образа для чтения
+        /// </summary>
+        /// <param name="filePath">Путь к файлу образа</param>
+        /// <returns>Образ файловой системы FAT</returns>
+        public static FatImage Open(string filePath)
+        {
+            var fatImage = new FatImage(filePath);
+            fatImage.ParseFat();
+
+            return fatImage;
+        }
 
         public FatImage(string path)
         {
@@ -97,11 +108,11 @@ namespace FatRead
 
                 foreach(var dirEntry in EnumerateDirectory(directoryToLookup))
                 {
-                    if(dirEntry.DisplayShortName.Equals(pathPartName, IgnoreCase))
+                    if(dirEntry.DisplayName.Equals(pathPartName, IgnoreCase))
                     {
                         partIsFound = true;
 
-                        if (pathParts.Any())
+                        if (pathParts.Count > 0)
                         {
                             directoryToLookup = dirEntry;
                             break;
@@ -132,16 +143,13 @@ namespace FatRead
             }
 
             UInt32 dirCluster = directory.ClusterLow;
-
-            UInt32 getTotalBytesToRead() => (context.IsFat32 || dirCluster > 1)
-                ? context.BytesPerCluster
-                : context.MaxDirectoryEntries * DirectoryEntry.Size;
-
             reader.SeekCluster(dirCluster);
 
             UInt32 totalBytesRead = 0;
             bool reading = true;
-            UInt32 bytesToRead = getTotalBytesToRead();
+            UInt32 bytesToRead = context.GetBytesForCluster(dirCluster);
+
+            var lfnParts = new List<LfnEntry>();
 
             while (reading)
             {
@@ -153,7 +161,23 @@ namespace FatRead
                 {
                     if (!readEntry.IsLfnEntry)
                     {
+                        if(lfnParts.Count > 0)
+                        {
+                            readEntry.AssignLfn(lfnParts);
+                            lfnParts.Clear();
+                        }
+
+                        long currentPos = reader.RawPosition;
                         yield return readEntry;
+
+                        if(reader.RawPosition != currentPos)
+                        {
+                            reader.RawPosition = currentPos;
+                        }
+                    }
+                    else
+                    {
+                        lfnParts.Add(LfnEntry.CreateFromDirectoryEntry(readEntry));
                     }
 
                     if (reading && (totalBytesRead >= bytesToRead))
@@ -162,7 +186,7 @@ namespace FatRead
                         dirCluster = reader.LookupFatTable(dirCluster);
                         reader.SeekCluster(dirCluster);
 
-                        bytesToRead = getTotalBytesToRead();
+                        bytesToRead = context.GetBytesForCluster(dirCluster);
                         totalBytesRead = 0;
                     }
                 }

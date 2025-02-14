@@ -47,6 +47,8 @@ namespace FatRead.Raw
             ClusterLow = 1
         };
 
+        private string longName;
+
         public string ShortName { get; set; }
 
         public EntryAttribute Attributes { get; set; }
@@ -82,6 +84,11 @@ namespace FatRead.Raw
         public bool IsDirectory => Attributes.HasFlag(EntryAttribute.Directory);
 
         /// <summary>
+        /// Является элементом-ссылкой на текущий или предыдущие каталоги
+        /// </summary>
+        public bool IsDotted => DisplayShortName.Equals(".") || DisplayShortName.Equals("..");
+
+        /// <summary>
         /// Номер кластера
         /// </summary>
         public UInt32 Cluster => (UInt32)ClusterHigh << 16 | ClusterLow;
@@ -95,7 +102,7 @@ namespace FatRead.Raw
             {
                 const int ShortNamePartLength = 8;
 
-                if(ShortName.Length >= ShortNamePartLength)
+                if(ShortName.Length > ShortNamePartLength)
                 {
                     string namePart = ShortName[..ShortNamePartLength].TrimEnd();
                     string extPart = ShortName[ShortNamePartLength..];
@@ -110,6 +117,11 @@ namespace FatRead.Raw
         }
 
         /// <summary>
+        /// Отображаемое имя
+        /// </summary>
+        public string DisplayName => longName ?? DisplayShortName;
+
+        /// <summary>
         /// Является записью LFN
         /// </summary>
         public bool IsLfnEntry =>
@@ -117,5 +129,24 @@ namespace FatRead.Raw
             && Attributes.HasFlag(EntryAttribute.Hidden)
             && Attributes.HasFlag(EntryAttribute.System)
             && Attributes.HasFlag(EntryAttribute.VolumeId);
+
+        /// <summary>
+        /// Присвоить длинное имя
+        /// </summary>
+        /// <param name="lfnParts">Части длинного имени файла</param>
+        public void AssignLfn(IList<LfnEntry> lfnParts)
+        {
+            var longNameBuffer = new StringBuilder();
+
+            for(int i = lfnParts.Count - 1; i >= 0; i--)
+            {
+                var part = lfnParts[i];
+                longNameBuffer.Append(part.NameFirstPart);
+                longNameBuffer.Append(part.NameSecondPart);
+                longNameBuffer.Append(part.NameThirdPart);
+            }
+
+            longName = longNameBuffer.ToString().Split('\0')[0];
+        }
     }
 }

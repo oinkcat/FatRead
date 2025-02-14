@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Xunit;
+using FatRead.Raw;
 
 namespace FatRead.Tests
 {
@@ -36,8 +36,8 @@ namespace FatRead.Tests
         [Fact]
         public void TestGetExistingFileByPath()
         {
-            const string EntryPath1 = "\\info\\include\\ip.h";
-            const string EntryPath2 = "info\\Include\\IP.h";
+            const string EntryPath1 = "\\info\\include\\linux\\old_unused_rtl_wireless.h";
+            const string EntryPath2 = "INFO\\Include\\LINUX\\old_unused_RTL_wireless.h";
 
             using var fsImage = new FatImage(TestImageFiles.Fat32ImagePath);
             fsImage.ParseFat();
@@ -65,6 +65,33 @@ namespace FatRead.Tests
             var nonExistingEntry = fsImage.GetEntryByPath(NonExistingEntryPath);
 
             Assert.Null(nonExistingEntry);
+        }
+
+        /// <summary>
+        /// Тестирование обхода элементов каталога
+        /// </summary>
+        [Fact]
+        public void TestDirectoryEntriesWalk()
+        {
+            using var fsImage = FatImage.Open(TestImageFiles.Fat16ImagePath);
+
+            var listing = new List<string>() { "\\" };
+            WalkIntoDirectory(fsImage, fsImage.GetEntryByPath("\\"), listing, 1);
+
+            Assert.NotEmpty(listing);
+        }
+
+        private void WalkIntoDirectory(FatImage fsImage, DirectoryEntry dirEntry, List<string> listing, int level)
+        {
+            foreach (var dirContentEntry in fsImage.EnumerateDirectory(dirEntry))
+            {
+                listing.Add(String.Concat(String.Empty.PadLeft(level, '-'), dirContentEntry.DisplayName));
+
+                if (dirContentEntry.IsDirectory && !dirContentEntry.IsDotted)
+                {
+                    WalkIntoDirectory(fsImage, dirContentEntry, listing, level + 1);
+                }
+            }
         }
     }
 }

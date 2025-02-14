@@ -65,5 +65,14 @@ namespace FatRead
                 MaxDirectoryEntries = bootSector.NumberOfRootEntries
             };
         }
+
+        /// <summary>
+        /// Получить число байт в указанном кластере
+        /// </summary>
+        /// <param name="cluster">Номер кластера</param>
+        /// <returns>Число доступных для чтения байт</returns>
+        public UInt32 GetBytesForCluster(UInt32 cluster) => (IsFat32 || cluster > 1)
+                ? BytesPerCluster
+                : MaxDirectoryEntries * DirectoryEntry.Size;
     }
 }

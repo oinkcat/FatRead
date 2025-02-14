@@ -33,6 +33,15 @@ namespace FatRead
             }
         }
 
+        /// <summary>
+        /// Позиция в потоке чтения
+        /// </summary>
+        internal long RawPosition
+        {
+            get => reader.BaseStream.Position;
+            set => reader.BaseStream.Position = value;
+        }
+
         public FatImageReader(string path)
         {
             imgFilePath = path;

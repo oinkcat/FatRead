@@ -20,7 +20,7 @@ namespace FatRead.Tests
         [Fact]
         public void TestReadBootSectorInfo()
         {
-            using var fatReader = new FatImageReader(TestImageFiles.Fat32ImagePath);
+            using var fatReader = new FatImageReader(TestImageFiles.Fat16ImagePath);
             var commonHeader = fatReader.ReadCommonInfo();
 
             Assert.False(commonHeader.IsFat32);
@@ -32,7 +32,7 @@ namespace FatRead.Tests
         [Fact]
         public void TestReadFatInfo()
         {
-            using var fatReader = new FatImageReader(TestImageFiles.Fat32ImagePath);
+            using var fatReader = new FatImageReader(TestImageFiles.Fat16ImagePath);
             var commonHeader = fatReader.ReadCommonInfo();
 
             var fsInfo = commonHeader.IsFat32
@@ -50,7 +50,7 @@ namespace FatRead.Tests
         [Fact]
         public void TestParseFatImageBasicInfo()
         {
-            using var fsImage = new FatImage(TestImageFiles.Fat32ImagePath);
+            using var fsImage = new FatImage(TestImageFiles.Fat16ImagePath);
             fsImage.ParseFat();
 
             Assert.True(fsImage.IsParsed);
