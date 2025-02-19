@@ -14,13 +14,15 @@ namespace FatRead
 
         private readonly FatImageReader reader;
 
+        private readonly List<UInt32> fileClusters;
+
         private long position;
 
         private UInt32 currentCluster;
 
         public override bool CanRead => true;
 
-        public override bool CanSeek => false;
+        public override bool CanSeek => true;
 
         public override bool CanWrite => false;
 
@@ -29,20 +31,43 @@ namespace FatRead
         public override long Position 
         { 
             get => position; 
-            set => throw new NotImplementedException(); 
+            set => Seek(value, SeekOrigin.Begin); 
         }
 
         public FatFileStream(DirectoryEntry fileEntry, FatImageReader reader)
         {
             currentCluster = fileEntry.Cluster;
+            fileClusters = new List<UInt32> { currentCluster };
+
             this.fileEntry = fileEntry;
             this.reader = reader;
         }
 
+        /// <inheritdoc />
         public override long Seek(long offset, SeekOrigin origin)
         {
-            // TODO!
-            throw new NotImplementedException();
+            position = origin switch {
+                SeekOrigin.Begin => offset,
+                SeekOrigin.Current => Math.Min(position + offset, Length),
+                SeekOrigin.End => Math.Max(Length + offset, 0),
+                _ => throw new ArgumentException("Incorrect offset or origin")
+            };
+
+            int finalClusterIdx = (int)(position / reader.Context.BytesPerCluster);
+            int finalClusterOffset = (int)(position % reader.Context.BytesPerCluster);
+
+            if(finalClusterIdx >= fileClusters.Count)
+            {
+                int chainLength = finalClusterIdx - fileClusters.Count + 1;
+                var chainPart = reader.ReadFatClusterChain(fileClusters[^1], chainLength);
+                fileClusters.AddRange(chainPart);
+
+                currentCluster = fileClusters[finalClusterIdx];
+            }
+
+            reader.SeekCluster(currentCluster, (UInt16)finalClusterOffset);
+
+            return position;
         }
 
         /// <summary>
@@ -54,6 +79,8 @@ namespace FatRead
         /// <returns>Число прочитанных байт</returns>
         public override int Read(byte[] buffer, int offset, int count)
         {
+            if(position >= Length) { return 0; }
+
             int totalBytesRead = 0;
             UInt16 clusterOffset = (UInt16)(position % reader.Context.BytesPerCluster);
             reader.SeekCluster(currentCluster, clusterOffset);
@@ -79,6 +106,7 @@ namespace FatRead
                 if(clusterBytesLeft - bytesRead <= 0)
                 {
                     currentCluster = reader.LookupFatTable(currentCluster);
+                    fileClusters.Add(currentCluster);
                     reader.SeekCluster(currentCluster);
                 }
             }

@@ -10,6 +10,10 @@ namespace FatRead
     /// </summary>
     internal class FatContext
     {
+        private const UInt32 EndOfClusterChainFat16Value = 0xfff8;
+
+        private const UInt32 EndOfClusterChainFat32Value = 0x0ffffff8;
+
         /// <summary>
         /// ФС FAT является 32-х разрядной
         /// </summary>
@@ -74,5 +78,14 @@ namespace FatRead
         public UInt32 GetBytesForCluster(UInt32 cluster) => (IsFat32 || cluster > 1)
                 ? BytesPerCluster
                 : MaxDirectoryEntries * DirectoryEntry.Size;
+
+        /// <summary>
+        /// Является ли номер кластера признаком конца цепочки
+        /// </summary>
+        /// <param name="cluster">Номер кластера</param>
+        /// <returns>Признак конца цепочки кластеров</returns>
+        public bool IsEndOfChain(UInt32 cluster) => IsFat32
+            ? cluster >= EndOfClusterChainFat32Value
+            : cluster >= EndOfClusterChainFat16Value;
     }
 }

@@ -53,6 +53,7 @@ namespace FatRead.Raw
         /// <summary>
         /// Является ли тип ФС FAT32
         /// </summary>
+        /// <remarks>TODO: Не совсем правильное определение, нужно исправить</remarks>
         public bool IsFat32 => FatSize16 == 0;
     }
 }

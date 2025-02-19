@@ -193,18 +193,55 @@ namespace FatRead
             ThrowIfNoContext();
 
             long origOffset = reader.BaseStream.Position;
-
-            int entrySize = Context.IsFat32 ? sizeof(UInt32) : sizeof(UInt16);
-            long newOffset = Context.FatTableOffset + entry * entrySize;
-            reader.BaseStream.Position = newOffset;
-
-            UInt32 readValue = Context.IsFat32 
-                ? reader.ReadUInt32() & 0x0fffffff 
-                : reader.ReadUInt16();
-
+            UInt32 readValue = ReadNextClusterChainValue(entry);
             reader.BaseStream.Position = origOffset;
 
             return readValue;
+        }
+
+        private UInt32 ReadNextClusterChainValue(UInt32 chainEntry)
+        {
+            int entrySize = Context.IsFat32 ? sizeof(UInt32) : sizeof(UInt16);
+            long newOffset = Context.FatTableOffset + chainEntry * entrySize;
+            reader.BaseStream.Position = newOffset;
+
+            return Context.IsFat32
+                ? reader.ReadUInt32() & 0x0fffffff
+                : reader.ReadUInt16();
+        }
+
+        /// <summary>
+        /// Прочитать цепочку кластеров файла указанного размера
+        /// </summary>
+        /// <param name="startCluster">Номер стартового кластера</param>
+        /// <param name="numClusters">Число кластеров (номеров) для получения</param>
+        /// <returns>Список номеров кластеров заданной длины, начиная с начального</returns>
+        public UInt32[] ReadFatClusterChain(UInt32 startCluster, int numClusters)
+        {
+            var fileClusters = new UInt32[numClusters];
+            
+            long origOffset = reader.BaseStream.Position;
+
+            UInt32 nextCluster = startCluster;
+            int clusterIdx = 0;
+            bool isReadingNext = numClusters > 0;
+
+            while(isReadingNext)
+            {
+                nextCluster = ReadNextClusterChainValue(nextCluster);
+
+                isReadingNext = (nextCluster != 0) && !context.IsEndOfChain(nextCluster);
+
+                if(isReadingNext)
+                {
+                    fileClusters[clusterIdx++] = nextCluster;
+                    isReadingNext = clusterIdx < numClusters;
+                }
+            }
+
+            reader.BaseStream.Position = origOffset;
+
+            return fileClusters;
         }
 
         private void ThrowIfNoContext()

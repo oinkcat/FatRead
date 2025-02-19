@@ -44,5 +44,39 @@ namespace FatRead.Tests
             testOutStream.Write(entryBytes);
             testOutStream.Flush();
         }
+
+        /// <summary>
+        /// Тест чтения данных из файла с установками позиций чтения
+        /// </summary>
+        [Fact]
+        public void TestReadFileWithSeeks()
+        {
+            const string TestFilePath = "\\info\\include\\ieee80211.h";
+
+            const int NumBytesToRead = 3;
+
+            (SeekOrigin, long, string)[] testData =
+            {
+                (SeekOrigin.Begin, 0x33f7, "75-31-36"),
+                (SeekOrigin.Current, 0x11ab, "63-29-20"),
+                (SeekOrigin.End, -0x20c7, "6D-61-78")
+            };
+
+            using var fsImage = FatImage.Open(TestImageFiles.Fat16ImagePath);
+            var fileToRead = fsImage.GetEntryByPath(TestFilePath);
+            using var testFileStream = fsImage.OpenFileForRead(fileToRead);
+
+            Assert.True(testFileStream.CanSeek);
+
+            foreach(var (seekOrigin, offset, expectedBytes) in testData)
+            {
+                testFileStream.Seek(offset, seekOrigin);
+                var buffer = new byte[NumBytesToRead];
+                int bytesRead = testFileStream.Read(buffer);
+
+                Assert.Equal(NumBytesToRead, bytesRead);
+                Assert.Equal(expectedBytes, BitConverter.ToString(buffer));
+            }
+        }
     }
 }
