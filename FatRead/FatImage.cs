@@ -6,16 +6,6 @@ using FatRead.Raw;
 namespace FatRead
 {
     /// <summary>
-    /// Тип файловой системы FAT
-    /// </summary>
-    public enum FatType
-    {
-        Unsupported,
-        Fat16,
-        Fat32
-    }
-
-    /// <summary>
     /// Образ файловой системы FAT
     /// </summary>
     public class FatImage : IDisposable
@@ -35,7 +25,7 @@ namespace FatRead
         /// <summary>
         /// Тип ФС
         /// </summary>
-        public FatType Type { get; private set; }
+        public FatType Type => context?.Type ?? FatType.Unsupported;
 
         /// <summary>
         /// Структуры ФС разобраны
@@ -68,11 +58,7 @@ namespace FatRead
         {
             bootSector = reader.ReadCommonInfo();
             info = bootSector.IsFat32 ? reader.ReadFat32Info() : reader.ReadFatInfo();
-            context = FatContext.FromFsInfos(bootSector, info);
-
-            Type = info.IsSupported
-                ? (context.IsFat32 ? FatType.Fat32 : FatType.Fat16)
-                : FatType.Unsupported;
+            context = FatContext.FromFsInfos(bootSector, info);;
 
             reader.Context = context;
 
@@ -184,10 +170,17 @@ namespace FatRead
                     {
                         // Перейти к следующему кластеру списка элементов каталога
                         dirCluster = reader.LookupFatTable(dirCluster);
-                        reader.SeekCluster(dirCluster);
 
-                        bytesToRead = context.GetBytesForCluster(dirCluster);
-                        totalBytesRead = 0;
+                        if(!context.IsEndOfChain(dirCluster))
+                        {
+                            reader.SeekCluster(dirCluster);
+                            bytesToRead = context.GetBytesForCluster(dirCluster);
+                            totalBytesRead = 0;
+                        }
+                        else
+                        {
+                            reading = false;
+                        }
                     }
                 }
             }

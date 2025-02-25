@@ -22,7 +22,7 @@ namespace FatRead.Tests
         {
             const string RootDirPath = "\\";
 
-            using var fsImage = new FatImage(TestImageFiles.Fat32ImagePath);
+            using var fsImage = new FatImage(TestImageFiles.Fat16ImagePath);
             fsImage.ParseFat();
 
             var rootDirectory = fsImage.GetEntryByPath(RootDirPath);
@@ -73,7 +73,7 @@ namespace FatRead.Tests
         [Fact]
         public void TestDirectoryEntriesWalk()
         {
-            using var fsImage = FatImage.Open(TestImageFiles.Fat16ImagePath);
+            using var fsImage = FatImage.Open(TestImageFiles.Fat12ImagePath);
 
             var listing = new List<string>() { "\\" };
             WalkIntoDirectory(fsImage, fsImage.GetEntryByPath("\\"), listing, 1);

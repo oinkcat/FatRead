@@ -52,23 +52,31 @@ namespace FatRead
         /// Прочитать информацию об образе ФС
         /// </summary>
         /// <returns>Заголовок загрузочного сектора</returns>
-        public FatCommonHeader ReadCommonInfo() => new FatCommonHeader
+        public FatCommonHeader ReadCommonInfo()
         {
-            JmpCommand = reader.ReadBytes(FatCommonHeader.JmpCommandLength),
-            OemName = Encoding.ASCII.GetString(reader.ReadBytes(FatCommonHeader.OemNameLength)),
-            BytesPerSector = reader.ReadUInt16(),
-            SectorsPerCluster = reader.ReadByte(),
-            ReservedCount = reader.ReadUInt16(),
-            NumberOfFats = reader.ReadByte(),
-            NumberOfRootEntries = reader.ReadUInt16(),
-            TotalSectors16 = reader.ReadUInt16(),
-            MediaType = reader.ReadByte(),
-            FatSize16 = reader.ReadUInt16(),
-            SectorsPerTrack = reader.ReadUInt16(),
-            NumberOfHeads = reader.ReadUInt16(),
-            NumberOfHiddenSectors = reader.ReadUInt32(),
-            TotalSectors32 = reader.ReadUInt32()
-        };
+            var bpbHeader = new FatCommonHeader
+            {
+                JmpCommand = reader.ReadBytes(FatCommonHeader.JmpCommandLength),
+                OemName = Encoding.ASCII.GetString(reader.ReadBytes(FatCommonHeader.OemNameLength)),
+                BytesPerSector = reader.ReadUInt16(),
+                SectorsPerCluster = reader.ReadByte(),
+                ReservedCount = reader.ReadUInt16(),
+                NumberOfFats = reader.ReadByte(),
+                NumberOfRootEntries = reader.ReadUInt16(),
+                TotalSectors16 = reader.ReadUInt16(),
+                MediaType = reader.ReadByte(),
+                FatSize16 = reader.ReadUInt16(),
+                SectorsPerTrack = reader.ReadUInt16(),
+                NumberOfHeads = reader.ReadUInt16(),
+                NumberOfHiddenSectors = reader.ReadUInt32(),
+                TotalSectors32 = reader.ReadUInt32()
+            };
+
+            bpbHeader.GuessFatType();
+
+            return bpbHeader;
+        }
+        
 
         /// <summary>
         /// Прочитать информацию о ФС FAT (16)
@@ -201,13 +209,24 @@ namespace FatRead
 
         private UInt32 ReadNextClusterChainValue(UInt32 chainEntry)
         {
-            int entrySize = Context.IsFat32 ? sizeof(UInt32) : sizeof(UInt16);
-            long newOffset = Context.FatTableOffset + chainEntry * entrySize;
-            reader.BaseStream.Position = newOffset;
+            if(Context.Type == FatType.Fat12)
+            {
+                reader.BaseStream.Position = Context.FatTableOffset + (chainEntry * 3) / 2;
+                UInt16 readValue = reader.ReadUInt16();
 
-            return Context.IsFat32
-                ? reader.ReadUInt32() & 0x0fffffff
-                : reader.ReadUInt16();
+                return (chainEntry % 2 == 0) 
+                    ? (UInt32)(readValue & 0x0fff) 
+                    : (UInt32)(readValue >> 4);
+            }
+            else
+            {
+                int entrySize = Context.IsFat32 ? sizeof(UInt32) : sizeof(UInt16);
+                reader.BaseStream.Position = Context.FatTableOffset + chainEntry * entrySize;
+
+                return Context.IsFat32
+                    ? reader.ReadUInt32() & 0x0fffffff
+                    : reader.ReadUInt16();
+            }
         }
 
         /// <summary>

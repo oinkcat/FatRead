@@ -5,10 +5,25 @@ using System.Text;
 namespace FatRead.Raw
 {
     /// <summary>
+    /// Тип файловой системы FAT
+    /// </summary>
+    public enum FatType
+    {
+        Unsupported,
+        Fat12,
+        Fat16,
+        Fat32
+    }
+
+    /// <summary>
     /// Общий заголовок файловой системы FAT
     /// </summary>
     public class FatCommonHeader
     {
+        private const int MaxDataClustersFat12 = 4084;
+
+        private const int MaxDataClustersFat16 = 65524;
+
         private const byte HexCodeJmp = 0xeb;
 
         private const byte HexCodeNop = 0x90;
@@ -53,7 +68,35 @@ namespace FatRead.Raw
         /// <summary>
         /// Является ли тип ФС FAT32
         /// </summary>
-        /// <remarks>TODO: Не совсем правильное определение, нужно исправить</remarks>
-        public bool IsFat32 => FatSize16 == 0;
+        public bool IsFat32 => GuessedType == FatType.Fat32;
+
+        /// <summary>
+        /// Предполагаемый тип файловой системы FAT
+        /// </summary>
+        public FatType GuessedType { get; private set; }
+
+        /// <summary>
+        /// Попытаться определить тип файловой системы
+        /// </summary>
+        public void GuessFatType()
+        {
+            if (!IsValid) { return; }
+
+            if (FatSize16 != 0 && (TotalSectors16 != 0 || TotalSectors32 != 0))
+            {
+                UInt32 totalSectors = (TotalSectors16 == 0) ? TotalSectors32 : TotalSectors16;
+                UInt32 rootDirSectors = NumberOfRootEntries * DirectoryEntry.Size / BytesPerSector;
+                UInt32 fatSectors = (UInt32)(ReservedCount + NumberOfFats * FatSize16);
+                UInt32 dataSectors = totalSectors - fatSectors + rootDirSectors;
+                UInt32 clustersCount = dataSectors / SectorsPerCluster;
+
+                GuessedType = (clustersCount <= MaxDataClustersFat12)
+                    ? FatType.Fat12
+                    : ((clustersCount <= MaxDataClustersFat16) ? FatType.Fat16 : FatType.Fat32);
+            } else if(FatSize16 == 0)
+            {
+                GuessedType = FatType.Fat32;
+            }
+        }
     }
 }

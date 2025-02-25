@@ -21,9 +21,9 @@ namespace FatRead.Tests
         [Fact]
         public void TestReadFileFromImage()
         {
-            const string TestFilePath = "\\info\\include\\ip.h";
+            const string TestFilePath = "\\bin\\expand.exe";
 
-            using var fsImage = new FatImage(TestImageFiles.Fat32ImagePath);
+            using var fsImage = new FatImage(TestImageFiles.Fat12ImagePath);
             fsImage.ParseFat();
 
             var foundFile = fsImage.GetEntryByPath(TestFilePath);

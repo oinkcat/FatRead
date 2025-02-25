@@ -20,10 +20,10 @@ namespace FatRead.Tests
         [Fact]
         public void TestReadBootSectorInfo()
         {
-            using var fatReader = new FatImageReader(TestImageFiles.Fat16ImagePath);
+            using var fatReader = new FatImageReader(TestImageFiles.Fat12ImagePath);
             var commonHeader = fatReader.ReadCommonInfo();
 
-            Assert.False(commonHeader.IsFat32);
+            Assert.Equal(FatType.Fat12, commonHeader.GuessedType);
         }
 
         /// <summary>
@@ -40,8 +40,8 @@ namespace FatRead.Tests
                 : fatReader.ReadFatInfo();
 
             Assert.True(commonHeader.IsValid);
+            Assert.NotEqual(FatType.Unsupported, commonHeader.GuessedType);
             Assert.IsNotType<Fat32Info>(fsInfo);
-            Assert.True(fsInfo.IsSupported);
         }
 
         /// <summary>
@@ -50,11 +50,11 @@ namespace FatRead.Tests
         [Fact]
         public void TestParseFatImageBasicInfo()
         {
-            using var fsImage = new FatImage(TestImageFiles.Fat16ImagePath);
+            using var fsImage = new FatImage(TestImageFiles.Fat32ImagePath);
             fsImage.ParseFat();
 
             Assert.True(fsImage.IsParsed);
-            Assert.Equal(FatType.Fat16, fsImage.Type);
+            Assert.Equal(FatType.Fat32, fsImage.Type);
         }
     }
 }

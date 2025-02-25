@@ -10,9 +10,16 @@ namespace FatRead
     /// </summary>
     internal class FatContext
     {
+        private const UInt32 EndOfClusterChainFat12Value = 0xff8;
+
         private const UInt32 EndOfClusterChainFat16Value = 0xfff8;
 
         private const UInt32 EndOfClusterChainFat32Value = 0x0ffffff8;
+
+        /// <summary>
+        /// Тип файловой системы
+        /// </summary>
+        public FatType Type { get; set; }
 
         /// <summary>
         /// ФС FAT является 32-х разрядной
@@ -61,6 +68,7 @@ namespace FatRead
 
             return new FatContext
             {
+                Type = bootSector.GuessedType,
                 IsFat32 = bootSector.IsFat32,
                 MediaType = bootSector.MediaType,
                 BytesPerCluster = (UInt32)bootSector.BytesPerSector * bootSector.SectorsPerCluster,
@@ -84,8 +92,12 @@ namespace FatRead
         /// </summary>
         /// <param name="cluster">Номер кластера</param>
         /// <returns>Признак конца цепочки кластеров</returns>
-        public bool IsEndOfChain(UInt32 cluster) => IsFat32
-            ? cluster >= EndOfClusterChainFat32Value
-            : cluster >= EndOfClusterChainFat16Value;
+        public bool IsEndOfChain(UInt32 cluster) => cluster >= Type switch
+        {
+            FatType.Fat12 => EndOfClusterChainFat12Value,
+            FatType.Fat16 => EndOfClusterChainFat16Value,
+            FatType.Fat32 => EndOfClusterChainFat32Value,
+            _ => throw new ArgumentException(nameof(Type))
+        };
     }
 }
