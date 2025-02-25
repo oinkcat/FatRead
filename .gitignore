@@ -433,3 +433,4 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 /FatRead.Tests/TestData/fat16.img
 /FatRead.Tests/TestData/fat32.img
+/FatRead.Tests/TestData/fat12.img
