@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.IO.Compression;
+using FatRead.Raw;
 
 namespace FatRead.Tests
 {
@@ -33,6 +34,16 @@ namespace FatRead.Tests
         /// Путь к тестовому образу FAT32
         /// </summary>
         public static string Fat32ImagePath => Path.Combine(TestDataDirPath, Fat32FileName);
+
+        /// <summary>
+        /// Пути к файлам образов, соответствующие типам ФС
+        /// </summary>
+        public static Dictionary<FatType, string> TestImagePathByType => new()
+        {
+            [FatType.Fat12] = Fat12ImagePath,
+            [FatType.Fat16] = Fat16ImagePath,
+            [FatType.Fat32] = Fat32ImagePath
+        };
 
         /// <summary>
         /// Распаковать архив файлов тестовых образов

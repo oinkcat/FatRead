@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FatRead.Raw;
 using Xunit;
 
 namespace FatRead.Tests
@@ -18,15 +19,16 @@ namespace FatRead.Tests
         /// <summary>
         /// Тест чтения файла из образа
         /// </summary>
-        [Fact]
-        public void TestReadFileFromImage()
+        [Theory]
+        [InlineData(FatType.Fat12, "\\bin\\expand.exe")]
+        [InlineData(FatType.Fat16, "\\info\\include\\ieee80211.h")]
+        [InlineData(FatType.Fat32, "\\info\\include\\ieee80211.h")]
+        public void TestReadFileFromImage(FatType type, string testPath)
         {
-            const string TestFilePath = "\\bin\\expand.exe";
-
-            using var fsImage = new FatImage(TestImageFiles.Fat12ImagePath);
+            using var fsImage = new FatImage(TestImageFiles.TestImagePathByType[type]);
             fsImage.ParseFat();
 
-            var foundFile = fsImage.GetEntryByPath(TestFilePath);
+            var foundFile = fsImage.GetEntryByPath(testPath);
             using var entryStream = fsImage.OpenFileForRead(foundFile);
 
             Assert.True(entryStream.CanRead);
@@ -48,8 +50,10 @@ namespace FatRead.Tests
         /// <summary>
         /// Тест чтения данных из файла с установками позиций чтения
         /// </summary>
-        [Fact]
-        public void TestReadFileWithSeeks()
+        [Theory]
+        [InlineData(FatType.Fat16)]
+        [InlineData(FatType.Fat32)]
+        public void TestReadFileWithSeeks(FatType type)
         {
             const string TestFilePath = "\\info\\include\\ieee80211.h";
 
@@ -62,7 +66,7 @@ namespace FatRead.Tests
                 (SeekOrigin.End, -0x20c7, "6D-61-78")
             };
 
-            using var fsImage = FatImage.Open(TestImageFiles.Fat16ImagePath);
+            using var fsImage = FatImage.Open(TestImageFiles.TestImagePathByType[type]);
             var fileToRead = fsImage.GetEntryByPath(TestFilePath);
             using var testFileStream = fsImage.OpenFileForRead(fileToRead);
 

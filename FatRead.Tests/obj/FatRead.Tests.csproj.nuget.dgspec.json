@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\VS_Projects\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj": {}
+    "D:\\Projects_VS\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj": {}
   },
   "projects": {
-    "D:\\VS_Projects\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj": {
+    "D:\\Projects_VS\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\VS_Projects\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj",
+        "projectUniqueName": "D:\\Projects_VS\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj",
         "projectName": "FatRead.Tests",
-        "projectPath": "D:\\VS_Projects\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj",
+        "projectPath": "D:\\Projects_VS\\repos\\FatRead\\FatRead.Tests\\FatRead.Tests.csproj",
         "packagesPath": "C:\\Users\\softc\\.nuget\\packages\\",
-        "outputPath": "D:\\VS_Projects\\repos\\FatRead\\FatRead.Tests\\obj\\",
+        "outputPath": "D:\\Projects_VS\\repos\\FatRead\\FatRead.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -27,15 +27,15 @@
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "C:\\Program Files\\dotnet\\library-packs": {},
-          "D:\\VS_Projects\\Work\\Communicator\\Packages": {},
+          "D:\\Projects_VS\\Work\\Communicator\\Packages": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj": {
-                "projectPath": "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj"
+              "D:\\Projects_VS\\repos\\FatRead\\FatRead\\FatRead.csproj": {
+                "projectPath": "D:\\Projects_VS\\repos\\FatRead\\FatRead\\FatRead.csproj"
               }
             }
           }
@@ -93,14 +93,14 @@
         }
       }
     },
-    "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj": {
+    "D:\\Projects_VS\\repos\\FatRead\\FatRead\\FatRead.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj",
+        "projectUniqueName": "D:\\Projects_VS\\repos\\FatRead\\FatRead\\FatRead.csproj",
         "projectName": "FatRead",
-        "projectPath": "D:\\VS_Projects\\repos\\FatRead\\FatRead\\FatRead.csproj",
+        "projectPath": "D:\\Projects_VS\\repos\\FatRead\\FatRead\\FatRead.csproj",
         "packagesPath": "C:\\Users\\softc\\.nuget\\packages\\",
-        "outputPath": "D:\\VS_Projects\\repos\\FatRead\\FatRead\\obj\\",
+        "outputPath": "D:\\Projects_VS\\repos\\FatRead\\FatRead\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -116,7 +116,7 @@
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "C:\\Program Files\\dotnet\\library-packs": {},
-          "D:\\VS_Projects\\Work\\Communicator\\Packages": {},
+          "D:\\Projects_VS\\Work\\Communicator\\Packages": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {

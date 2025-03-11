@@ -17,22 +17,28 @@ namespace FatRead.Tests
         /// <summary>
         /// Тест чтения загрузочного сектора FAT
         /// </summary>
-        [Fact]
-        public void TestReadBootSectorInfo()
+        [Theory]
+        [InlineData(FatType.Fat12)]
+        [InlineData(FatType.Fat16)]
+        [InlineData(FatType.Fat32)]
+        public void TestReadBootSectorInfo(FatType type)
         {
-            using var fatReader = new FatImageReader(TestImageFiles.Fat12ImagePath);
+            using var fatReader = new FatImageReader(TestImageFiles.TestImagePathByType[type]);
             var commonHeader = fatReader.ReadCommonInfo();
 
-            Assert.Equal(FatType.Fat12, commonHeader.GuessedType);
+            Assert.Equal(type, commonHeader.GuessedType);
         }
 
         /// <summary>
         /// Тест чтения информации о ФС FAT
         /// </summary>
-        [Fact]
-        public void TestReadFatInfo()
+        [Theory]
+        [InlineData(FatType.Fat12)]
+        [InlineData(FatType.Fat16)]
+        [InlineData(FatType.Fat32)]
+        public void TestReadFatInfo(FatType type)
         {
-            using var fatReader = new FatImageReader(TestImageFiles.Fat16ImagePath);
+            using var fatReader = new FatImageReader(TestImageFiles.TestImagePathByType[type]);
             var commonHeader = fatReader.ReadCommonInfo();
 
             var fsInfo = commonHeader.IsFat32
@@ -40,21 +46,32 @@ namespace FatRead.Tests
                 : fatReader.ReadFatInfo();
 
             Assert.True(commonHeader.IsValid);
-            Assert.NotEqual(FatType.Unsupported, commonHeader.GuessedType);
-            Assert.IsNotType<Fat32Info>(fsInfo);
+            Assert.Equal(type, commonHeader.GuessedType);
+
+            if(type == FatType.Fat32)
+            {
+                Assert.IsType<Fat32Info>(fsInfo);
+            }
+            else
+            {
+                Assert.IsType<FatInfo>(fsInfo);
+            }
         }
 
         /// <summary>
         /// Тест разбора образа ФС FAT и получения базовой информации
         /// </summary>
-        [Fact]
-        public void TestParseFatImageBasicInfo()
+        [Theory]
+        [InlineData(FatType.Fat12)]
+        [InlineData(FatType.Fat16)]
+        [InlineData(FatType.Fat32)]
+        public void TestParseFatImageBasicInfo(FatType type)
         {
-            using var fsImage = new FatImage(TestImageFiles.Fat32ImagePath);
+            using var fsImage = new FatImage(TestImageFiles.TestImagePathByType[type]);
             fsImage.ParseFat();
 
             Assert.True(fsImage.IsParsed);
-            Assert.Equal(FatType.Fat32, fsImage.Type);
+            Assert.Equal(type, fsImage.Type);
         }
     }
 }

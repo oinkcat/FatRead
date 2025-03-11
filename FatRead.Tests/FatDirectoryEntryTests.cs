@@ -17,12 +17,15 @@ namespace FatRead.Tests
         /// <summary>
         /// Тест чтения содержимого корневого каталога
         /// </summary>
-        [Fact]
-        public void TestReadRootDirectoryEntries()
+        [Theory]
+        [InlineData(FatType.Fat12)]
+        [InlineData(FatType.Fat16)]
+        [InlineData(FatType.Fat32)]
+        public void TestReadRootDirectoryEntries(FatType type)
         {
             const string RootDirPath = "\\";
 
-            using var fsImage = new FatImage(TestImageFiles.Fat16ImagePath);
+            using var fsImage = new FatImage(TestImageFiles.TestImagePathByType[type]);
             fsImage.ParseFat();
 
             var rootDirectory = fsImage.GetEntryByPath(RootDirPath);
@@ -33,13 +36,15 @@ namespace FatRead.Tests
         /// <summary>
         /// Тест получения существующего файла по его пути
         /// </summary>
-        [Fact]
-        public void TestGetExistingFileByPath()
+        [Theory]
+        [InlineData(FatType.Fat16)]
+        [InlineData(FatType.Fat32)]
+        public void TestGetExistingFileByPath(FatType type)
         {
             const string EntryPath1 = "\\info\\include\\linux\\old_unused_rtl_wireless.h";
             const string EntryPath2 = "INFO\\Include\\LINUX\\old_unused_RTL_wireless.h";
 
-            using var fsImage = new FatImage(TestImageFiles.Fat32ImagePath);
+            using var fsImage = new FatImage(TestImageFiles.TestImagePathByType[type]);
             fsImage.ParseFat();
 
             var foundEntry1 = fsImage.GetEntryByPath(EntryPath1);
@@ -54,12 +59,14 @@ namespace FatRead.Tests
         /// <summary>
         /// Тест получения несуществующего файла по пути
         /// </summary>
-        [Fact]
-        public void TestGetNonExistingFileByPath()
+        [Theory]
+        [InlineData(FatType.Fat16)]
+        [InlineData(FatType.Fat32)]
+        public void TestGetNonExistingFileByPath(FatType type)
         {
             const string NonExistingEntryPath = "\\include\\linux\\test.h";
 
-            using var fsImage = new FatImage(TestImageFiles.Fat32ImagePath);
+            using var fsImage = new FatImage(TestImageFiles.TestImagePathByType[type]);
             fsImage.ParseFat();
 
             var nonExistingEntry = fsImage.GetEntryByPath(NonExistingEntryPath);
@@ -70,10 +77,13 @@ namespace FatRead.Tests
         /// <summary>
         /// Тестирование обхода элементов каталога
         /// </summary>
-        [Fact]
-        public void TestDirectoryEntriesWalk()
+        [Theory]
+        [InlineData(FatType.Fat12)]
+        [InlineData(FatType.Fat16)]
+        [InlineData(FatType.Fat32)]
+        public void TestDirectoryEntriesWalk(FatType type)
         {
-            using var fsImage = FatImage.Open(TestImageFiles.Fat12ImagePath);
+            using var fsImage = FatImage.Open(TestImageFiles.TestImagePathByType[type]);
 
             var listing = new List<string>() { "\\" };
             WalkIntoDirectory(fsImage, fsImage.GetEntryByPath("\\"), listing, 1);
